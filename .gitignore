@@ -43,3 +43,6 @@ frontend/.env
 # Environment
 .env
 application-local.properties
+
+# Local Spring config (credentials per machine; copy from application.properties.example)
+backend/src/main/resources/application.properties
