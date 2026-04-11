@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './context/AuthContext'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -11,6 +13,7 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <AuthProvider>
           <App />
+          <ToastContainer position="top-right" autoClose={4000} />
         </AuthProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>

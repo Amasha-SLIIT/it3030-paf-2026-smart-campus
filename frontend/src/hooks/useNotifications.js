@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from '../api/notificationApi';
+import { toast } from 'react-toastify';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -19,13 +20,17 @@ export function useNotifications() {
   }, []);
 
   const fetchUnreadCount = useCallback(async () => {
-    try {
-      const res = await getUnreadCount();
-      setUnreadCount(res.data.count);
-    } catch (err) {
-      console.error('Failed to fetch unread count', err);
+  try {
+    const res = await getUnreadCount();
+    const newCount = res.data.count;
+    if (newCount > unreadCount) {
+      toast.info('You have a new notification 🔔');
     }
-  }, []);
+    setUnreadCount(newCount);
+  } catch (err) {
+    console.error('Failed to fetch unread count', err);
+  }
+}, [unreadCount]);
 
   const handleMarkAsRead = async (id) => {
     await markAsRead(id);

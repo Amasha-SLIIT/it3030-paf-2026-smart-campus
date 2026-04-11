@@ -6,11 +6,11 @@ import api from '../api/axiosInstance';
 export default function Dashboard() {
   const { user, logout } = useAuth();
 
-  useEffect(() => {
-  api.get('/notifications').then(res => {
-    console.log('RAW NOTIFICATIONS:', res.data);
-  });
-}, []);
+//   useEffect(() => {
+//   api.get('/notifications').then(res => {
+//     console.log('RAW NOTIFICATIONS:', res.data);
+//   });
+// }, []);
 
   return (
     <div>
