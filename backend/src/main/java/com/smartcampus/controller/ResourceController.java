@@ -26,7 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/resources")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // React dev server
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:5175"}) // React dev server
 @Validated
 public class ResourceController {
 
