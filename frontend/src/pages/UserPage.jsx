@@ -45,7 +45,7 @@ const UserPage = () => {
           Campus Resources
         </h1>
         <p style={{ fontSize: 15, opacity: 0.85, maxWidth: 500 }}>
-          Find lecture rooms, labs, and equipment across campus. Check availability or scan the QR code to view details and book.
+          Find lecture rooms, labs, and equipment across campus. Check availability to book resources. Scan QR code to view details on the go.
         </p>
       </div>
 

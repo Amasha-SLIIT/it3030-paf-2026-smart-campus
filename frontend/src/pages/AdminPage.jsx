@@ -61,8 +61,6 @@ const ImageUploadBtn = ({ resourceId, onSuccess, label = '📷 Upload Photo', in
   const { showToast } = useApp();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(initialImage);
-  // Track whether user has picked a local file so we don't overwrite their preview
-  // when the parent re-renders and passes a new initialImage
   const hasLocalPreview = useRef(false);
   const fileRef = useRef();
 
@@ -462,7 +460,7 @@ const ResourcesTab = ({ resources, loading, onSearch, onEdit, onDelete, onDetail
               <button className="btn btn-secondary btn-sm"
                 onClick={(e) => { e.stopPropagation(); onEdit(resource); }}>✏️ Edit</button>
               <button className="btn btn-danger btn-sm"
-                onClick={(e) => { e.stopPropagation(); onDelete(resource); }}>🗑️</button>
+                onClick={(e) => { e.stopPropagation(); onDelete(resource); }}>🗑️ Delete</button>
             </div>
           )}
         />

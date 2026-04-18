@@ -40,7 +40,7 @@ const QRCodeDisplay = ({ resource, onClose }) => {
             <p
               style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}
             >
-              Scan with a phone camera to view details &amp; book
+              Scan with a phone camera to view details
             </p>
           </div>
           <button
@@ -220,7 +220,7 @@ const QRCodeDisplay = ({ resource, onClose }) => {
 
           <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
             Point your phone camera at the QR code above. It will open the
-            resource page where you can view full details and request a booking.
+            resource page where you can view full details.
           </p>
         </div>
       </div>
