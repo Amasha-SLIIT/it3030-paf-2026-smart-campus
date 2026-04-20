@@ -31,6 +31,13 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
+  const loginWithCredentials = (token, userData) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -41,7 +48,7 @@ export function AuthProvider({ children }) {
   const isTechnician = () => user?.role === 'TECHNICIAN';
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, isAdmin, isTechnician }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle,loginWithCredentials, logout, isAdmin, isTechnician }}>
       {children}
     </AuthContext.Provider>
   );

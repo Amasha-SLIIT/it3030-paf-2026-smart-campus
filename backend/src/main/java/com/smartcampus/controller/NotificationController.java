@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import com.smartcampus.model.NotificationType;
 
 import java.util.List;
 import java.util.Map;
@@ -54,4 +55,18 @@ public class NotificationController {
         notificationService.deleteNotification(id, getCurrentUser().getId());
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/test-email")
+    public ResponseEntity<?> testEmail() {
+    User currentUser = getCurrentUser();
+    notificationService.createNotification(
+        currentUser,
+        "Test Notification 🔔",
+        "This is a test email from Smart Campus. If you received this, email notifications are working!",
+        NotificationType.GENERAL,
+        null,
+        null
+    );
+    return ResponseEntity.ok(Map.of("message", "Notification created and email sent to " + currentUser.getEmail()));
+}
 }

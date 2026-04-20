@@ -15,6 +15,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
 
     // Called by other modules (Booking, Ticket) to create notifications
     public Notification createNotification(User user, String title, String message,
@@ -29,7 +30,20 @@ public class NotificationService {
                 .referenceType(referenceType)
                 .build();
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        // 2. Send email asynchronously (won't slow down the API response)
+        if (user.getEmail() != null) {
+            emailService.sendNotificationEmail(
+                    user.getEmail(),
+                    user.getName(),
+                    title,
+                    message,
+                    type != null ? type.name() : "GENERAL"
+            );
+        }
+
+        return saved;
     }
 
     // Get all notifications for a user

@@ -7,8 +7,8 @@ import api from '../api/axiosInstance';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+
 export default function LoginPage() {
-  const { loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionExpired = searchParams.get('expired') === 'true';
@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { loginWithGoogle, loginWithCredentials } = useAuth();
+
 
   const redirectAfterLogin = (userData) => {
     if (userData.role === 'ADMIN') navigate('/admin/dashboard');
@@ -34,22 +36,21 @@ export default function LoginPage() {
   });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const res = await api.post(endpoint, form);
-      const { token, user } = res.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      redirectAfterLogin(user);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  try {
+    const endpoint = isRegister ? '/auth/register' : '/auth/login';
+    const res = await api.post(endpoint, form);
+    const { token, user } = res.data;
+    const userData = loginWithCredentials(token, user); // ← use this instead
+    redirectAfterLogin(userData);
+  } catch (err) {
+    setError(err.response?.data?.error || 'Something went wrong');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={styles.container}>
