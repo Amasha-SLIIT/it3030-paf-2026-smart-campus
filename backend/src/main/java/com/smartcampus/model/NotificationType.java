@@ -8,5 +8,6 @@ public enum NotificationType {
     TICKET_COMMENT_ADDED,
     TICKET_ASSIGNED,
     GENERAL,
-    TICKET
+    TICKET,
+    BOOKING_UPDATE
 }
