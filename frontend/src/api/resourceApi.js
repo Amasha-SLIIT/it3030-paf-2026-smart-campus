@@ -1,10 +1,12 @@
-
-
 import api from './axiosInstance';
 
 const BASE_PATH = '/resources';
 
-
+/**
+ * Resolves the image URL. 
+ * Since Cloudinary returns a full HTTPS URL, this will return it as-is.
+ * If it's a legacy local path, it appends the base URL.
+ */
 export const resolveImageUrl = (url) => {
   if (!url) return null;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -29,18 +31,24 @@ export const resourceApi = {
   update: (id, data) =>
     api.put(`${BASE_PATH}/${id}`, data).then(res => res.data),
 
-  
   delete: (id) =>
     api.delete(`${BASE_PATH}/${id}`).then(res => res.data),
 
   updateStatus: (id, status) =>
     api.patch(`${BASE_PATH}/${id}/status`, null, { params: { status } }).then(res => res.data),
 
+  /**
+   * PROPER CLOUDINARY UPLOAD:
+   * Sends the file to the Spring Boot backend, which then uploads to Cloudinary.
+   */
   uploadImage: (id, file) => {
-    const form = new FormData();
-    form.append('file', file);
-    return api.post(`${BASE_PATH}/${id}/image`, form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const formData = new FormData();
+    formData.append('file', file); // 'file' must match the @RequestParam in your Spring Boot controller
+    
+    return api.post(`${BASE_PATH}/${id}/image`, formData, {
+      headers: { 
+        'Content-Type': 'multipart/form-data' 
+      },
     }).then(res => res.data);
   },
 

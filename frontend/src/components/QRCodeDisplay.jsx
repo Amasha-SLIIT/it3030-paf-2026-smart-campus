@@ -1,7 +1,3 @@
-// FIX #13 – QR code was using VITE_API_URL.replace() which throws if the env var is undefined.
-// Also the QR scan URL now correctly points to the frontend resource page, not the backend API.
-// Added safe fallback for missing env vars.
-
 import { useState } from 'react';
 import { StatusBadge, TypeBadge } from './ResourceCard';
 
@@ -14,18 +10,19 @@ const QRCodeDisplay = ({ resource, onClose }) => {
 
   if (!resource) return null;
 
-  // FIX #13: safe env var access — fall back to localhost if not set
   const frontendBase = (import.meta.env?.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
-  // Link to frontend resource detail/QR scan page
-  const resourceUrl = `${frontendBase}/resource?qr=${resource.qrCode}`;
-  const qrSrc = QR_API(resourceUrl);
+  const resourceUrl  = `${frontendBase}/resource?qr=${resource.qrCode}`;
+  const qrSrc        = QR_API(resourceUrl);
 
-  const isLocalhost = resourceUrl.includes('localhost') || resourceUrl.includes('127.0.0.1');
+  // Warn if URL won't be reachable by other devices
+  const isNonPublic = resourceUrl.includes('localhost')
+    || resourceUrl.includes('127.0.0.1')
+    || /192\.168\.\d+\.\d+/.test(resourceUrl)
+    || /10\.\d+\.\d+\.\d+/.test(resourceUrl);
 
   return (
     <div style={backdrop} onClick={onClose}>
       <div style={modal} onClick={e => e.stopPropagation()}>
-        {/* Header */}
         <div style={header}>
           <div>
             <h2 style={{ margin: 0, fontSize: 20, color: '#1e3a5f' }}>Resource QR Code</h2>
@@ -37,32 +34,32 @@ const QRCodeDisplay = ({ resource, onClose }) => {
         </div>
 
         <div style={{ padding: '20px 24px', textAlign: 'center' }}>
-          {/* Resource info */}
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ margin: '0 0 8px', fontSize: 18, color: '#1e3a5f' }}>{resource.name}</h3>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <TypeBadge   type={resource.type}     />
+              <TypeBadge   type={resource.type} />
               <StatusBadge status={resource.status} />
             </div>
           </div>
 
-          {/* Localhost warning */}
-          {isLocalhost && (
+          {isNonPublic && (
             <div style={warnBox}>
-              ⚠️ QR encodes <strong>localhost</strong> — phones on other devices can't reach it.
-              Set <code>VITE_APP_BASE_URL=http://&lt;your-LAN-IP&gt;:5173</code> in your <code>.env</code> and restart.
+              ⚠️ This QR encodes a <strong>private/local URL</strong> — other devices may not reach it.
+              Set <code>VITE_APP_BASE_URL=https://your-public-domain.com</code> in <code>.env</code> for
+              production use. The QR below is still valid for same-device testing.
             </div>
           )}
 
-          {/* QR image */}
           <div style={qrBox}>
             {!qrLoaded && !qrError && (
-              <div style={{ width: 220, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
+              <div style={{ width: 220, height: 220, display: 'flex',
+                alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
                 Loading QR…
               </div>
             )}
             {qrError && (
-              <div style={{ width: 220, height: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#9ca3af' }}>
+              <div style={{ width: 220, height: 220, display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center', gap: 8, color: '#9ca3af' }}>
                 <span style={{ fontSize: 36 }}>📵</span>
                 <span style={{ fontSize: 13 }}>QR unavailable (offline?)</span>
               </div>
@@ -76,10 +73,13 @@ const QRCodeDisplay = ({ resource, onClose }) => {
             />
           </div>
 
-          {/* UUID text for manual entry */}
+          {/* Encoded URL shown for transparency */}
+          <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8, wordBreak: 'break-all' }}>
+            {resourceUrl}
+          </div>
+
           <div style={codeText}>{resource.qrCode}</div>
 
-          {/* Location */}
           <div style={locationBox}>
             📍 {resource.location}
             {resource.building && ` · ${resource.building}`}
@@ -88,7 +88,7 @@ const QRCodeDisplay = ({ resource, onClose }) => {
           </div>
 
           <p style={{ fontSize: 12, color: '#9ca3af' }}>
-            Point your phone camera at the QR code. It opens the resource booking page directly.
+            Point your phone camera at the QR code to open the resource page directly.
           </p>
         </div>
       </div>

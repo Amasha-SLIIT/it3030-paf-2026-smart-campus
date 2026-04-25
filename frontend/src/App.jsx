@@ -16,6 +16,7 @@ import TicketDetailPage from './pages/TicketDetailPage';
 import SubmitTicketPage from './pages/SubmitTicketPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
+import ResourceScanPage from './pages/ResourceScanPage';
 
 import './styles/global.css';
 import './App.css';
@@ -49,6 +50,7 @@ const App = () => {
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
           <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
           <Route path="/booking" element={<ProtectedRoute><BookingFormPage /></ProtectedRoute>} />
+          <Route path="/resource" element={<ResourceScanPage />} />
           <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />

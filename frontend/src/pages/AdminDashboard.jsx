@@ -1,6 +1,4 @@
-
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
@@ -11,7 +9,8 @@ import NotificationBell from '../components/NotificationBell';
 import ResourceCard, { StatusBadge, TypeBadge } from '../components/ResourceCard';
 import ResourceDetailModal from '../components/ResourceDetailModal';
 import ResourceFormModal from '../components/ResourceFormModal';
-import { Users, Box, Wrench, BookOpen } from 'lucide-react';
+import IncidentHeatmap from '../components/IncidentHeatmap';
+import { Users, Box, Wrench, BookOpen, BarChart2 } from 'lucide-react';
 
 const ROLES = ['USER', 'ADMIN', 'ACADEMIC_STAFF'];
 
@@ -34,6 +33,7 @@ const MAIN_TABS = [
   { id: 'tickets',   label: 'Tickets',   icon: <Wrench size={18} /> },
   { id: 'resources', label: 'Resources', icon: <Box size={18} /> },
   { id: 'bookings',  label: 'Bookings',  icon: <BookOpen size={18} /> },
+  { id: 'insights',  label: 'Insights',  icon: <BarChart2 size={18} /> },
 ];
 
 const RESOURCE_SUB_TABS = [
@@ -87,7 +87,6 @@ export default function AdminDashboard() {
 
   useEffect(() => { loadAll(); }, []);
 
-  
   const handleRoleChange = async (userId, newRole) => {
     if (userId === user?.id) {
       showToast('You cannot change your own role', 'error');
@@ -105,38 +104,55 @@ export default function AdminDashboard() {
     }
   };
 
- 
+  // UPDATED: CREATE RESOURCE WITH CLOUDINARY UPLOAD
   const handleResourceCreate = async (data) => {
+    const { imageFile, ...resourceData } = data;
     setFormLoading(true);
     try {
-      const created = await resourceApi.create(data);
-      setResources(prev => [created, ...prev]);
-      showToast('Resource created!', 'success');
+      // 1. Create the base resource record
+      const created = await resourceApi.create(resourceData);
+      let finalResource = created;
+
+      // 2. If a file was selected, upload it to Cloudinary via backend
+      if (imageFile) {
+        finalResource = await resourceApi.uploadImage(created.id, imageFile);
+      }
+
+      setResources(prev => [finalResource, ...prev]);
+      showToast('Resource created successfully!', 'success');
       setActiveResTab('list'); 
     } catch (e) {
-      showToast(e.message, 'error');
+      showToast(e.message || 'Failed to create resource', 'error');
     } finally {
       setFormLoading(false);
     }
   };
 
-
+  // UPDATED: UPDATE RESOURCE WITH CLOUDINARY UPLOAD
   const handleResourceUpdate = async (data) => {
     if (!editResource) return;
+    const { imageFile, ...resourceData } = data;
     setFormLoading(true);
     try {
-      const updated = await resourceApi.update(editResource.id, data);
-      setResources(prev => prev.map(r => r.id === updated.id ? updated : r));
+      // 1. Update text data
+      const updated = await resourceApi.update(editResource.id, resourceData);
+      let finalResource = updated;
+
+      // 2. If a new image was selected, upload it
+      if (imageFile) {
+        finalResource = await resourceApi.uploadImage(editResource.id, imageFile);
+      }
+
+      setResources(prev => prev.map(r => r.id === finalResource.id ? finalResource : r));
       setEditResource(null);
-      showToast('Resource updated!', 'success');
+      showToast('Resource updated successfully!', 'success');
     } catch (e) {
-      showToast(e.message, 'error');
+      showToast(e.message || 'Failed to update resource', 'error');
     } finally {
       setFormLoading(false);
     }
   };
 
-  
   const handleResourceDelete = async (resource) => {
     if (!window.confirm(`Delete "${resource.name}"? This cannot be undone.`)) return;
     try {
@@ -175,7 +191,6 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      {/* Navbar */}
       <div style={navStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontWeight: 700, fontSize: 18, color: '#1e3a5f' }}>🎓 Smart Campus</span>
@@ -199,7 +214,6 @@ export default function AdminDashboard() {
         <h2 style={{ margin: '0 0 4px', color: '#1e3a5f' }}>Admin Dashboard</h2>
         <p style={{ color: '#6b7280', marginBottom: 24 }}>Manage users, monitor tickets, and oversee resources.</p>
 
-        {/* Main tabs */}
         <div style={tabContainer}>
           {MAIN_TABS.map(t => (
             <button key={t.id} onClick={() => setActiveMainTab(t.id)}
@@ -212,11 +226,10 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* ── USERS ── */}
         {activeMainTab === 'users' && (
           <div>
             <div style={statsRow}>
-              <StatCard label="Total Users"   value={users.length}                                    color="#1e3a5f" />
+              <StatCard label="Total Users"   value={users.length}                                     color="#1e3a5f" />
               <StatCard label="Admins"        value={users.filter(u => u.role === 'ADMIN').length}     color="#dc2626" />
               <StatCard label="Academic Staff"value={users.filter(u => u.role === 'ACADEMIC_STAFF').length} color="#2563eb" />
               <StatCard label="Regular Users" value={users.filter(u => u.role === 'USER').length}     color="#16a34a" />
@@ -253,7 +266,6 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td style={tdStyle}>
-                        {/* FIX #15 */}
                         {u.id === user?.id ? (
                           <span style={{ fontSize: 12, color: '#9ca3af' }}>Cannot change own role</span>
                         ) : (
@@ -278,7 +290,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ── TICKETS ── */}
         {activeMainTab === 'tickets' && (
           <div>
             <div style={statsRow}>
@@ -332,10 +343,8 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ── RESOURCES ── */}
         {activeMainTab === 'resources' && (
           <div>
-            {/* Sub-tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
               {RESOURCE_SUB_TABS.map(t => (
                 <button key={t.id} onClick={() => setActiveResTab(t.id)}
@@ -350,16 +359,14 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* Overview */}
             {activeResTab === 'overview' && (
               <div style={statsRow}>
-                <StatCard label="Total"      value={resources.length}                                          color="#1e3a5f" />
-                <StatCard label="Active"     value={resources.filter(r => r.status === 'ACTIVE').length}      color="#16a34a" />
+                <StatCard label="Total"       value={resources.length}                                          color="#1e3a5f" />
+                <StatCard label="Active"      value={resources.filter(r => r.status === 'ACTIVE').length}      color="#16a34a" />
                 <StatCard label="Maint. Due" value={maintDue.length}                                          color="#d97706" />
                 <StatCard label="Out of Svc" value={resources.filter(r => r.status === 'OUT_OF_SERVICE').length} color="#dc2626" />
               </div>
             )}
-
             
             {activeResTab === 'create' && (
               <div style={tableCard}>
@@ -374,7 +381,6 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Resource list */}
             {activeResTab === 'list' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {resources.map(r => (
@@ -402,7 +408,6 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Status update */}
             {activeResTab === 'status' && (
               <div style={tableCard}>
                 <h3 style={{ marginBottom: 16 }}>Update Resource Status</h3>
@@ -434,7 +439,6 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Maintenance */}
             {activeResTab === 'maintenance' && (
               <div style={tableCard}>
                 <h3 style={{ marginBottom: 16 }}>Due for Maintenance</h3>
@@ -466,10 +470,8 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
-      </div>
-      {/* ── Bookings ── */}
-      {activeMainTab === 'bookings' && (
-        <div>
+        {activeMainTab === 'bookings' && (
+        <div style={{ padding: '0 40px' }}>
           <button
             onClick={() => navigate('/admin/bookings')}
             style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white',
@@ -479,7 +481,17 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modals */}
+      {activeMainTab === 'insights' && (
+        <div>
+          <h3 style={{ margin: '0 0 20px', color: '#1e3a5f' }}>
+            📍 Location-Based Incident Heatmap
+          </h3>
+          <IncidentHeatmap tickets={tickets} resources={resources} />
+        </div>
+      )}
+      </div>
+      
+
       {detailResource && (
         <ResourceDetailModal resource={detailResource} onClose={() => setDetailResource(null)} />
       )}

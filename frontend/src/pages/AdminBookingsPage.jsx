@@ -1,9 +1,9 @@
-// AdminBookingsPage.jsx
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axiosInstance';           // ← use your axios instance
-import { toast } from 'react-toastify';           // ← not react-hot-toast
+import api from '../api/axiosInstance';           
+import { toast } from 'react-toastify';           
 
 const STATUS_COLORS = {
   PENDING: '#f59e0b', APPROVED: '#16a34a', REJECTED: '#ef4444', CANCELLED: '#6b7280',
