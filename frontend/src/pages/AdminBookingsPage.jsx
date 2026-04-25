@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -8,18 +9,22 @@ const STATUS_COLORS = {
 };
 
 export default function AdminBookingsPage() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const fetchAll = async () => {
+ const fetchAll = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('token');
       const url = filter
         ? `http://localhost:8080/api/bookings?status=${filter}`
         : 'http://localhost:8080/api/bookings';
-      const res = await axios.get(url);
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setBookings(res.data);
     } catch { toast.error('Failed to load bookings'); }
     finally { setLoading(false); }
@@ -34,7 +39,11 @@ export default function AdminBookingsPage() {
       if (!reason) return;
     }
     try {
-      const res = await axios.patch(`http://localhost:8080/api/bookings/${id}/decision`, { approved, reason });
+      const token = localStorage.getItem('token');
+      const res = await axios.patch(`http://localhost:8080/api/bookings/${id}/decision`, 
+        { approved, reason },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setBookings(bookings.map(b => b.id === id ? res.data : b));
       toast.success(approved ? '✅ Booking approved!' : '❌ Booking rejected');
     } catch (err) { toast.error(err.response?.data?.error || 'Action failed'); }
@@ -43,7 +52,10 @@ export default function AdminBookingsPage() {
   const handleCancel = async (id, bookingUserEmail) => {
     if (!window.confirm('Cancel this booking?')) return;
     try {
-      const res = await axios.delete(`http://localhost:8080/api/bookings/${id}?userEmail=${bookingUserEmail}`);
+      const token = localStorage.getItem('token');
+      const res = await axios.delete(`http://localhost:8080/api/bookings/${id}?userEmail=${bookingUserEmail}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setBookings(bookings.map(b => b.id === id ? res.data : b));
       toast.success('Booking cancelled');
     } catch (err) { toast.error(err.response?.data?.error || 'Failed to cancel'); }
@@ -62,16 +74,22 @@ export default function AdminBookingsPage() {
       <div style={navStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontWeight: 700, fontSize: 18, color: '#1e3a5f', cursor: 'pointer' }}
-            onClick={() => navigate('/bookings')}>
+            onClick={() => navigate('/admin/dashboard')}>
             🎓 Smart Campus
           </span>
           <span style={{ background: '#fef2f2', color: '#dc2626', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>
             ADMIN
           </span>
         </div>
-        <button onClick={() => navigate('/bookings')} style={{ padding: '6px 14px', background: 'white', color: '#1e3a5f', border: '1.5px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>
-          ← User View
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => navigate('/admin/dashboard')} style={outlineBtn}>
+            ← Admin Dashboard
+          </button>
+          <img
+            src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'A')}&background=1e3a5f&color=fff`}
+            alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
+          <button onClick={logout} style={logoutBtn}>Logout</button>
+        </div>
       </div>
 
       <div style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%)', padding: '32px 64px' }}>
@@ -145,3 +163,5 @@ const pStyle = { margin: '4px 0', fontSize: 14, color: '#4b5563', textAlign: 'le
 const emptyState = { textAlign: 'center', color: '#9ca3af', padding: 40, background: 'white', borderRadius: 12, fontSize: 15 };
 const approveBtn = { padding: '8px 18px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 };
 const rejectBtn = { padding: '8px 18px', background: '#dc2626', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 };
+const outlineBtn = { padding: '6px 14px', background: 'white', color: '#1e3a5f', border: '1.5px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 };
+const logoutBtn = { padding: '6px 14px', background: '#1e3a5f', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 };

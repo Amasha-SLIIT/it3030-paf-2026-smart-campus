@@ -19,7 +19,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    // Endpoint 1: POST - User creates a booking request
+    // Endpoint 1: POST - User creates a booking
     @PostMapping
     public ResponseEntity<BookingResponseDTO> createBooking(
             @Valid @RequestBody BookingRequestDTO dto,
@@ -43,7 +43,16 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllBookings(status));
     }
 
-    // Endpoint 4: PATCH - Admin approves or rejects a booking
+    // Endpoint 4: PUT - User updates a PENDING booking
+    @PutMapping("/{id}")
+    public ResponseEntity<BookingResponseDTO> updateBooking(
+            @PathVariable Long id,
+            @Valid @RequestBody BookingUpdateRequestDTO dto,
+            @RequestParam String userEmail) {
+        return ResponseEntity.ok(bookingService.updateBooking(id, dto, userEmail));
+    }
+
+    // Endpoint 5: PATCH - Admin approves or rejects
     @PatchMapping("/{id}/decision")
     public ResponseEntity<BookingResponseDTO> decideBooking(
             @PathVariable Long id,
@@ -51,7 +60,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.decideBooking(id, dto));
     }
 
-    // Endpoint 5: DELETE - User cancels their own booking
+    // Endpoint 6: DELETE - User cancels an APPROVED booking
     @DeleteMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> cancelBooking(
             @PathVariable Long id,

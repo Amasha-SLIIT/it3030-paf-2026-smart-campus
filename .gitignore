@@ -43,3 +43,5 @@ frontend/.env
 # Environment
 .env
 application-local.properties
+
+backend/application.properties
