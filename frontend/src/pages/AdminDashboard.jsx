@@ -11,7 +11,7 @@ import NotificationBell from '../components/NotificationBell';
 import ResourceCard, { StatusBadge, TypeBadge } from '../components/ResourceCard';
 import ResourceDetailModal from '../components/ResourceDetailModal';
 import ResourceFormModal from '../components/ResourceFormModal';
-import { Users, Box, Wrench } from 'lucide-react';
+import { Users, Box, Wrench, BookOpen } from 'lucide-react';
 
 const ROLES = ['USER', 'ADMIN', 'ACADEMIC_STAFF'];
 
@@ -33,6 +33,7 @@ const MAIN_TABS = [
   { id: 'users',     label: 'Users',     icon: <Users size={18} /> },
   { id: 'tickets',   label: 'Tickets',   icon: <Wrench size={18} /> },
   { id: 'resources', label: 'Resources', icon: <Box size={18} /> },
+  { id: 'bookings',  label: 'Bookings',  icon: <BookOpen size={18} /> },
 ];
 
 const RESOURCE_SUB_TABS = [
@@ -466,6 +467,17 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      {/* ── Bookings ── */}
+      {activeMainTab === 'bookings' && (
+        <div>
+          <button
+            onClick={() => navigate('/admin/bookings')}
+            style={{ padding: '10px 20px', background: '#1e3a5f', color: 'white',
+              border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            Open Full Bookings Manager →
+          </button>
+        </div>
+      )}
 
       {/* Modals */}
       {detailResource && (

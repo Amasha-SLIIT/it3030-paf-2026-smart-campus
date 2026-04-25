@@ -33,19 +33,30 @@ export default function MyTicketsPage() {
   useEffect(() => { loadTickets(); }, []);
 
   const loadTickets = async () => {
-    setLoading(true);
-    try {
-      
-      const res = await getTickets();
-      const data = res.data;
-      setTickets(Array.isArray(data) ? data : data?.content || []);
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to load tickets');
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const res = await getTickets();
+    const data = res.data;
+    const allTickets = Array.isArray(data) ? data : data?.content || [];
+
+    if (isStaff) {
+      const seen = new Set();
+      const combined = allTickets.filter(t => {
+        if (seen.has(t.id)) return false;
+        seen.add(t.id);
+        return true;
+      });
+      setTickets(combined);
+    } else {
+      setTickets(allTickets);
     }
-  };
+  } catch (e) {
+    console.error(e);
+    toast.error('Failed to load tickets');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this ticket? This cannot be undone.')) return;
@@ -93,6 +104,13 @@ export default function MyTicketsPage() {
           <button onClick={logout} style={logoutBtn}>Logout</button>
         </div>
       </div>
+
+      <button onClick={() => navigate(-1)}
+        style={{ position:'fixed', top:70, left:16, zIndex:20, display:'flex',
+          alignItems:'center', gap:6, background:'white', border:'1.5px solid #e5e7eb',
+          borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:13, color:'#374151',
+          boxShadow:'0 1px 4px rgba(0,0,0,0.08)' }}>
+      </button>
 
       {/* Hero banner */}
       <div style={heroBanner}>

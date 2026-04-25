@@ -46,6 +46,7 @@ export default function TicketDetailPage() {
   const [resolutionNotes,  setResolutionNotes]  = useState('');
   const [showStaffReject,  setShowStaffReject]  = useState(false);
   const [staffRejectReason,setStaffRejectReason]= useState('');
+  const [taskAccepted, setTaskAccepted] = useState(false);
 
   const bottomRef = useRef(null);
 
@@ -165,14 +166,15 @@ export default function TicketDetailPage() {
 
   // ── Staff: Accept ─────────────────────────────────────────────────────────
   const handleStaffAccept = async () => {
-    try {
-      const updated = await respondToAssignment(id, true);
-      setTicket(updated);
-      toast.success('Assignment accepted');
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Action failed');
-    }
-  };
+  try {
+    const updated = await respondToAssignment(id, true);
+    setTicket(updated);
+    setTaskAccepted(true); // ← lock out reject option
+    toast.success('Assignment accepted');
+  } catch (err) {
+    toast.error(err?.response?.data?.message || 'Action failed');
+  }
+};
 
   // ── Staff: Reject Assignment ───────────────────────────────────────────────
   const handleStaffRejectAssignment = async () => {
@@ -428,11 +430,22 @@ export default function TicketDetailPage() {
 
               {!showResolve && !showStaffReject && (
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <button onClick={handleStaffAccept} style={proceedBtn}>Accept Task</button>
-                  <button onClick={() => setShowResolve(true)} style={{ ...proceedBtn, background: '#166534' }}>
+                  {!taskAccepted && (
+                    <button onClick={handleStaffAccept} style={proceedBtn}>Accept Task</button>
+                  )}
+                  {taskAccepted && (
+                    <span style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>✅ Task Accepted</span>
+                  )}
+                  <button onClick={() => setShowResolve(true)}
+                    style={{ ...proceedBtn, background: '#166534' }}>
                     Mark Resolved
                   </button>
-                  <button onClick={() => setShowStaffReject(true)} style={rejectBtn}>Reject Assignment</button>
+                  {/* Only show reject if not yet accepted */}
+                  {!taskAccepted && (
+                    <button onClick={() => setShowStaffReject(true)} style={rejectBtn}>
+                      Reject Assignment
+                    </button>
+                  )}
                 </div>
               )}
 

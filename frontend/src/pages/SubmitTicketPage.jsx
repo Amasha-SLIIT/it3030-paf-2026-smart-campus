@@ -1,5 +1,5 @@
 // FIX #3  – form was submitting but FormData had wrong structure; fixed createTicket call
-// FIX #12 – after selecting resource type, only matching locations shown in location dropdown
+
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export default function SubmitTicketPage() {
   // All unique resource types
   const resourceTypes = [...new Set(resources.map(r => r.type).filter(Boolean))];
 
-  // FIX #12: filter locations by selected resource type
+  
   const filteredLocations = form.resourceType
     ? [...new Set(resources.filter(r => r.type === form.resourceType).map(r => r.location).filter(Boolean))]
     : [...new Set(resources.map(r => r.location).filter(Boolean))];
@@ -57,7 +57,7 @@ export default function SubmitTicketPage() {
     const { name, value } = e.target;
     setForm(prev => {
       const next = { ...prev, [name]: value };
-      // FIX #12: when resourceType changes, reset location so stale value isn't sent
+      
       if (name === 'resourceType') next.location = '';
       return next;
     });
@@ -112,7 +112,7 @@ export default function SubmitTicketPage() {
         if (match) resourceId = match.id;
       }
 
-      // FIX #3: createTicket handles FormData correctly in the API layer
+      
       await createTicket({
         subject:        form.subject,
         resourceId,
@@ -170,7 +170,7 @@ export default function SubmitTicketPage() {
               style={{ ...inputStyle, borderColor: errors.subject ? '#ef4444' : '#e0e0e0' }} />
           </Field>
 
-          {/* FIX #12 – Resource Type then filtered Location */}
+          
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Field label="Resource Type (optional)">
               <select name="resourceType" value={form.resourceType} onChange={handleChange} style={inputStyle}>

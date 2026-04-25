@@ -7,6 +7,8 @@ import { useApp } from './context/AppContext';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminBookingsPage from './pages/AdminBookingsPage';
+import BookingFormPage from './pages/BookingFormPage'; // wrapper page for BookingForm
 import NotificationsPage from './pages/NotificationsPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import TicketDetailPage from './pages/TicketDetailPage';
@@ -15,7 +17,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
 
 import BookingsPage from './pages/BookingsPage';
-import AdminBookingsPage from './pages/AdminBookingsPage';
+
 
 import './styles/global.css';
 import './App.css';
@@ -49,7 +51,8 @@ const App = () => {
           <Route path="/raise-ticket" element={<ProtectedRoute><SubmitTicketPage /></ProtectedRoute>} />
           <Route path="/tickets" element={<ProtectedRoute><MyTicketsPage /></ProtectedRoute>} />
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
-
+          <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+          <Route path="/booking" element={<ProtectedRoute><BookingFormPage /></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 

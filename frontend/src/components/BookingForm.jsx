@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+//import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
+
 
 const STUDENT_ALLOWED_TYPES = ['LAB', 'MEETING_ROOM'];
 

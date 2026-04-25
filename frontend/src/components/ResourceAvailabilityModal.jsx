@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { resourceApi } from '../api/resourceApi';
 import { StatusBadge, TypeBadge } from './ResourceCard';
+import { useNavigate } from 'react-router-dom';
 
 const DAYS_SHORT = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 const DAYS_LONG  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -19,6 +20,7 @@ const getMonday = (date = new Date()) => {
 const fmtDate = (d) => d.toISOString().split('T')[0];
 
 const ResourceAvailabilityModal = ({ resource, onClose }) => {
+  const navigate = useNavigate();
   const [weekStart,    setWeekStart]    = useState(() => fmtDate(getMonday()));
   const [avData,       setAvData]       = useState(null);
   const [loading,      setLoading]      = useState(false);
@@ -193,9 +195,26 @@ const ResourceAvailabilityModal = ({ resource, onClose }) => {
                   </p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
                     {daySlots.slots.map((slot, si) => (
-                      <div key={si} style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                      <div key={si} style={{ background: '#f0fdf4', border: '1px solid #bbf7d0',
+                        borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#166534' }}>{slot.start} – {slot.end}</div>
                         <div style={{ fontSize: 11, color: '#16a34a', marginTop: 3 }}>Available</div>
+                        <button
+                          onClick={() => {
+                            onClose();
+                            navigate('/booking', {
+                              state: {
+                                preSelected: {
+                                  resource,
+                                  slot: { start: `${daySlots.date}T${slot.start}:00` },
+                                }
+                              }
+                            });
+                          }}
+                          style={{ marginTop: 8, padding: '5px 12px', background: '#1e3a5f', color: 'white',
+                            border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                          Book Now
+                        </button>
                       </div>
                     ))}
                   </div>
