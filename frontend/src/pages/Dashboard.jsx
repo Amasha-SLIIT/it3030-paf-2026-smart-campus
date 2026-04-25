@@ -54,7 +54,7 @@ export default function Dashboard() {
   }, []);
 
   const quickLinks = [
-    { icon: <Calendar size={22} color="#2563eb" />, label: 'My Bookings', desc: 'View and manage your room & equipment bookings', color: '#eff6ff', border: '#bfdbfe' },
+    { icon: <Calendar size={22} color="#2563eb" />, label: 'My Bookings', desc: 'View and manage your room & equipment bookings', color: '#eff6ff', border: '#bfdbfe', route: '/bookings' },
     { icon: <Wrench size={22} color="#d97706" />, label: 'Raise a Ticket', desc: 'Report faults and technical issues', color: '#fffbeb', border: '#fde68a', route: '/raise-ticket' },
     { icon: <ClipboardList size={22} color="#16a34a" />, label: user?.role === 'ACADEMIC_STAFF' ? 'Tickets' : 'My Tickets', desc: user?.role === 'ACADEMIC_STAFF' ? 'Manage tasks assigned to you' : 'Track progress of your reports', color: '#f0fdf4', border: '#bbf7d0', route: '/tickets' },
     { icon: <Bell size={22} color="#7c3aed" />, label: 'Notifications', desc: 'View all your alerts and updates', color: '#f5f3ff', border: '#ddd6fe', route: '/notifications' },

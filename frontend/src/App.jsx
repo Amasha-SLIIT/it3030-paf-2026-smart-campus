@@ -1,8 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useApp } from './context/AppContext';
-import { ToastContainer } from 'react-toastify';        
-import 'react-toastify/dist/ReactToastify.css';        
+
 
 // Pages
 import LoginPage from './pages/LoginPage';
@@ -17,6 +16,9 @@ import SubmitTicketPage from './pages/SubmitTicketPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ProfilePage from './pages/ProfilePage';
 import ResourceScanPage from './pages/ResourceScanPage';
+
+import BookingsPage from './pages/BookingsPage';
+
 
 import './styles/global.css';
 import './App.css';
@@ -42,7 +44,9 @@ const App = () => {
     <div className="app-layout">
       <main className="app-main">
         <Routes>
+
           <Route path="/login" element={<LoginPage />} />
+
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/raise-ticket" element={<ProtectedRoute><SubmitTicketPage /></ProtectedRoute>} />
@@ -53,25 +57,19 @@ const App = () => {
           <Route path="/resource" element={<ResourceScanPage />} />
           <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+          {/* Your module */}
+          <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
+          <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+
           <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+
         </Routes>
       </main>
 
-      
       {toast && (
         <div className={`toast ${toast.type}`}>{toast.message}</div>
       )}
-
-      
-      <ToastContainer
-        position="top-right"
-        autoClose={6000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
     </div>
   );
 };

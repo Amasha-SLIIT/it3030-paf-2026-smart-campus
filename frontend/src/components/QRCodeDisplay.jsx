@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StatusBadge, TypeBadge } from './ResourceCard';
 
 const QR_API = (value, size = 220) =>
-  `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}&margin=10`;
+  `https://api.qrserver.com/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}&margin=10`;
 
 const QRCodeDisplay = ({ resource, onClose }) => {
   const [qrLoaded, setQrLoaded] = useState(false);

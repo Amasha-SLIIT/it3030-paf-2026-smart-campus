@@ -34,29 +34,35 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
 
-                // ── Public endpoints ──────────────────────────────────────────
+                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-
-                
                 .requestMatchers("/uploads/**").permitAll()
 
-                // ── Ticket endpoints ──────────────────────────────────────────
-                
+                // Ticket endpoints
                 .requestMatchers("/api/tickets/**").authenticated()
 
-                // ── User / Admin endpoints ────────────────────────────────────
+                // User / Admin endpoints
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
 
-                // ── Resource endpoints ────────────────────────────────────────
-                // Maintenance endpoints are admin-only; browsing is open to all authenticated users
+                // Resource endpoints
                 .requestMatchers("/api/resources/maintenance/**").hasRole("ADMIN")
                 .requestMatchers("/api/resources/**").authenticated()
 
-                // ── Notifications ─────────────────────────────────────────────
+                // Booking endpoints
+                .requestMatchers("/api/bookings/*/decision").hasRole("ADMIN")
+                .requestMatchers("/api/bookings").hasAnyRole("USER", "ADMIN", "ACADEMIC_STAFF")
+                .requestMatchers("/api/bookings/**").authenticated()
+
+                // Resource read endpoints (for booking form dropdown)
+                .requestMatchers("/api/resources/**").authenticated()
+
+                // Notifications
                 .requestMatchers("/api/notifications/**").authenticated()
 
-                // ── Catch-all ─────────────────────────────────────────────────
+                // Everything else
                 .anyRequest().authenticated()
+
+                
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

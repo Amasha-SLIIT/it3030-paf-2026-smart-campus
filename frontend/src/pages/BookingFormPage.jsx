@@ -1,14 +1,26 @@
+// src/pages/BookingFormPage.jsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BookingForm from '../components/BookingForm';
 import NotificationBell from '../components/NotificationBell';
 
 export default function BookingFormPage() {
+
   const { user, logout } = useAuth(); // ← fixed: removed the broken ternary
   const navigate  = useNavigate();
   const location  = useLocation();
 
   const preSelected = location.state?.preSelected || null;
+
+
+
+
+ 
+
+  const handleSuccess = () => {
+    navigate('/dashboard');
+  };
+
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -18,8 +30,7 @@ export default function BookingFormPage() {
           onClick={() => navigate('/dashboard')}>🎓 Smart Campus</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <NotificationBell />
-          <img
-            src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}&background=1e3a5f&color=fff`}
+          <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}&background=1e3a5f&color=fff`}
             alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
           <button onClick={logout} style={logoutBtn}>Logout</button>
         </div>

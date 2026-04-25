@@ -37,6 +37,7 @@ public class Notification {
 
     @Column(nullable = false)
     @Builder.Default
+  
     private boolean isRead = false;
 
     private Long referenceId;      

@@ -7,19 +7,26 @@ import com.smartcampus.model.User;
 import com.smartcampus.repository.NotificationRepository;
 import com.smartcampus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;   // ← added
+    private final UserRepository userRepository;
     private final EmailService emailService;
 
+    // ── FIXED: REQUIRES_NEW opens a brand-new transaction even when
+    //    called from afterCommit() where there is no active transaction.
+    //    Previously this ran transactionless → Hibernate dropped the save silently.
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notification createNotification(User user, String title, String message,
                                            NotificationType type, Long referenceId,
                                            String referenceType) {
@@ -34,7 +41,6 @@ public class NotificationService {
 
         Notification saved = notificationRepository.save(notification);
 
-        // Send email asynchronously
         if (user.getEmail() != null) {
             emailService.sendNotificationEmail(
                     user.getEmail(),
@@ -84,7 +90,7 @@ public class NotificationService {
         notificationRepository.delete(notification);
     }
 
-    // ── Convenience helpers for TicketService ────────────────────────────────
+    // ── Convenience helpers for TicketService ────────────────────────
 
     public void notifyAllAdmins(String title, String message, Long ticketId) {
         List<User> admins = userRepository.findByRole(Role.ADMIN);
@@ -107,5 +113,23 @@ public class NotificationService {
     public void notifyUserStatusChange(User user, String title, String message, Long ticketId) {
         createNotification(user, title, message,
                 NotificationType.TICKET_STATUS_CHANGED, ticketId, "TICKET");
+    }
+
+    public void notifyUserBookingUpdate(String email, String title, String message,
+                                        Long bookingId, NotificationType type) {
+        userRepository.findByEmail(email).ifPresent(user ->
+                createNotification(user, title, message, type, bookingId, "BOOKING")
+        );
+    }
+
+    public Notification createNotificationByEmail(String email, String title,
+                                                   String message, NotificationType type,
+                                                   Long referenceId, String referenceType) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            log.warn("Cannot send notification - user not found for email: {}", email);
+            return null;
+        }
+        return createNotification(user, title, message, type, referenceId, referenceType);
     }
 }

@@ -10,16 +10,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
 @RestControllerAdvice
-
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-       return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -29,11 +29,13 @@ public class GlobalExceptionHandler {
             String field = ((FieldError) err).getField();
             errors.put(field, err.getDefaultMessage());
         });
+
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", 400); //error code
-        body.put("error", "Validation Failed"); //error message
-        body.put("errors", errors); //detailed field errors
+        body.put("status", 400);
+        body.put("error", "Validation Failed");
+        body.put("errors", errors);
+
         return ResponseEntity.badRequest().body(body);
     }
 
@@ -54,7 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, Object>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, "Image must be 10MB or smaller.");
+        return buildError(HttpStatus.BAD_REQUEST, "File must be 10MB or smaller.");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -64,13 +66,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<Map<String, Object>> handleMissingPart(MissingServletRequestPartException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, "Required request part '" + ex.getRequestPartName() + "' is not present");
+        return buildError(HttpStatus.BAD_REQUEST,
+                "Required request part '" + ex.getRequestPartName() + "' is not present");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
         ex.printStackTrace();
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + ex.getMessage());
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred: " + ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildError(HttpStatus status, String message) {
@@ -79,8 +83,7 @@ public class GlobalExceptionHandler {
         body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
+
         return ResponseEntity.status(status).body(body);
     }
-
-
 }
