@@ -183,8 +183,13 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button onClick={() => navigate('/dashboard')} style={navBtn}>User View</button>
           <NotificationBell />
-          <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
-            alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
+          <img
+            src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
+            alt="avatar"
+            onClick={() => navigate('/profile')}
+            style={{ borderRadius: '50%', width: 36, height: 36, cursor: 'pointer' }}
+            title="View Profile"
+          />
           <button onClick={logout} style={logoutBtn}>Logout</button>
         </div>
       </div>

@@ -9,6 +9,7 @@ import ResourceAvailabilityModal from '../components/ResourceAvailabilityModal';
 import QRCodeDisplay from '../components/QRCodeDisplay'; 
 import NotificationBell from '../components/NotificationBell';
 import { Bell, Calendar, Wrench, BookOpen, ChevronRight, ClipboardList } from 'lucide-react';
+import api from '../api/axiosInstance';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -20,7 +21,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [availResource, setAvailResource] = useState(null);
   const [qrResource, setQrResource] = useState(null);
-
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
@@ -34,6 +35,17 @@ export default function Dashboard() {
       showToast(e.message, 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  
+
+  const handleDeleteAccount = async () => {
+    try {
+      await api.delete('/users/me');
+      logout();
+    } catch (err) {
+      alert('Failed to delete account. Please try again.');
     }
   };
 
@@ -56,11 +68,21 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {user?.role === 'ADMIN' && <button onClick={() => navigate('/admin/dashboard')} style={adminBtn}>Admin Panel</button>}
           <NotificationBell />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}&background=1e3a5f&color=fff`} alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
+          <div
+            onClick={() => navigate('/profile')}
+            style={{ display: 'flex', alignItems: 'center', gap: 10,
+              cursor: 'pointer', padding: '4px 8px', borderRadius: 8,
+              transition: 'background 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <img
+              src={user?.picture ||
+                `https://ui-avatars.com/api/?name=${user?.name}&background=1e3a5f&color=fff`}
+              alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
             <div style={{ lineHeight: 1.3 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{user?.name}</div>
-              <div style={{ fontSize: 11, color: '#6b7280' }}>{user?.role}</div>
+              <div style={{ fontSize: 11, color: '#6b7280' }}>View Profile</div>
             </div>
           </div>
           <button onClick={logout} style={logoutBtn}>Logout</button>

@@ -1,5 +1,5 @@
 package com.smartcampus.controller;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.smartcampus.model.Role;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
@@ -37,5 +37,14 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Role updated", "role", user.getRole()));
+    }
+
+    // DELETE /api/users/me — user deletes their own account
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteMyAccount() {
+        User currentUser = (User) SecurityContextHolder.getContext()
+                                .getAuthentication().getPrincipal();
+        userRepository.deleteById(currentUser.getId());
+        return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
     }
 }

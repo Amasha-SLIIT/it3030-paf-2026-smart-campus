@@ -53,8 +53,13 @@ export default function NotificationsPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <NotificationBell />
-          <img src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
-            alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
+                  <img
+          src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
+          alt="avatar"
+          onClick={() => navigate('/profile')}
+          style={{ borderRadius: '50%', width: 36, height: 36, cursor: 'pointer' }}
+          title="View Profile"
+        />
           <button onClick={logout} style={logoutBtn}>Logout</button>
         </div>
       </div>

@@ -3,7 +3,8 @@ package com.smartcampus.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -19,8 +20,10 @@ public class Notification {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, 
+                foreignKey = @ForeignKey(name = "FK_notification_user"))
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(nullable = false)

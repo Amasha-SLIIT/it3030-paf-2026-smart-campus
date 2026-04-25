@@ -13,6 +13,8 @@ import MyTicketsPage from './pages/MyTicketsPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import SubmitTicketPage from './pages/SubmitTicketPage';
 import LoadingSpinner from './components/LoadingSpinner';
+import ProfilePage from './pages/ProfilePage';
+
 import './styles/global.css';
 import './App.css';
 
@@ -44,6 +46,7 @@ const App = () => {
           <Route path="/tickets" element={<ProtectedRoute><MyTicketsPage /></ProtectedRoute>} />
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>

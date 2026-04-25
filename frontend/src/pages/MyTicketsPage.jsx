@@ -80,8 +80,12 @@ export default function MyTicketsPage() {
           )}
           <NotificationBell />
           <img
-            src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}&background=1e3a5f&color=fff`}
-            alt="avatar" style={{ borderRadius: '50%', width: 36, height: 36 }} />
+            src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
+            alt="avatar"
+            onClick={() => navigate('/profile')}
+            style={{ borderRadius: '50%', width: 36, height: 36, cursor: 'pointer' }}
+            title="View Profile"
+          />
           <div style={{ lineHeight: 1.3 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>{user?.name}</div>
             <div style={{ fontSize: 10, color: '#6b7280' }}>{user?.role}</div>
